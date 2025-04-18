@@ -1,0 +1,242 @@
+/* Estilos gerais */
+body {
+    background-color: #f5f5f5;
+}
+
+/* Estilos para as listas de veículos e vítimas */
+#lista-veiculos .list-group-item,
+#lista-vitimas .card {
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+#lista-veiculos .list-group-item:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Marcadores de status para veículos */
+.status-disponivel {
+    color: green;
+}
+
+.status-em-transito {
+    color: orange;
+}
+
+.status-em-atendimento {
+    color: red;
+}
+
+.status-retornando {
+    color: blue;
+}
+
+/* Estilo para as vítimas de acordo com gravidade */
+.vitima-vermelha {
+    border-left: 5px solid #dc3545;
+}
+
+.vitima-amarela {
+    border-left: 5px solid #ffc107;
+}
+
+.vitima-verde {
+    border-left: 5px solid #28a745;
+}
+
+.vitima-cinza {
+    border-left: 5px solid #6c757d;
+}
+
+.vitima-nao-classificada {
+    border-left: 5px solid #0d6efd;
+    background-color: #f8f9fa;
+}
+
+/* Estilo para hospitais */
+.progresso-ocupacao {
+    height: 0.5rem;
+}
+
+/* Personalização do mapa */
+.leaflet-popup-content {
+    margin: 10px;
+    min-width: 150px;
+}
+
+.popup-vitima {
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.popup-hospital {
+    background-color: #e3f2fd;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.popup-base {
+    background-color: #f0f7ff;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+/* Zonas de catástrofe */
+.zona-quente {
+    fill: rgba(255, 0, 0, 0.2);
+    stroke: red;
+    stroke-width: 1;
+}
+
+.zona-morna {
+    fill: rgba(255, 165, 0, 0.2);
+    stroke: orange;
+    stroke-width: 1;
+}
+
+/* Animação para elementos em movimento */
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.5; }
+    100% { opacity: 0.8; }
+}
+
+.em-movimento {
+    animation: pulse 1.5s infinite;
+}
+
+/* Log de eventos */
+#log-eventos {
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.log-item {
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px dotted #dee2e6;
+}
+
+.log-tempo {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #mapa {
+        height: 400px;
+    }
+}
+
+/* Estilização para os ícones personalizados */
+.vitima-icon-vermelha img {
+    filter: hue-rotate(0deg) saturate(2);
+    background-color: rgba(255, 0, 0, 0.3);
+    border-radius: 50%;
+    border: 2px solid #dc3545;
+}
+
+.vitima-icon-amarela img {
+    filter: hue-rotate(60deg) saturate(1.5);
+    background-color: rgba(255, 193, 7, 0.3);
+    border-radius: 50%;
+    border: 2px solid #ffc107;
+}
+
+.vitima-icon-verde img {
+    filter: hue-rotate(120deg) saturate(1.5);
+    background-color: rgba(40, 167, 69, 0.3);
+    border-radius: 50%;
+    border: 2px solid #28a745;
+}
+
+.vitima-icon-cinza img {
+    filter: grayscale(100%);
+    background-color: rgba(108, 117, 125, 0.3);
+    border-radius: 50%;
+    border: 2px solid #6c757d;
+}
+
+.catastrofe-icon img {
+    filter: hue-rotate(320deg) saturate(2);
+    background-color: rgba(220, 53, 69, 0.5);
+    border-radius: 50%;
+    border: 3px solid #dc3545;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.7);
+}
+
+/* Estilos para as rotas de veículos */
+.leaflet-routing-container {
+    display: none !important; /* Ocultar o painel lateral de instruções da rota */
+}
+
+.leaflet-routing-alt {
+    display: none !important;
+}
+
+/* Personalizar a linha da rota para ambulâncias */
+.leaflet-routing-line {
+    stroke-width: 4;
+    stroke: rgba(0, 0, 255, 0.5);
+    stroke-dasharray: 5, 8;
+    animation: move-dash 1.5s linear infinite;
+}
+
+@keyframes move-dash {
+    to {
+        stroke-dashoffset: -13;
+    }
+}
+
+/* Estilos para o modal de triagem START */
+#modal-triagem .btn-classificar {
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: left;
+    border-radius: 4px;
+}
+
+#modal-triagem .btn-classificar.active {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+    transform: scale(1.02);
+}
+
+#modal-triagem .card-header {
+    font-weight: 600;
+}
+
+/* Cores para os botões de classificação */
+#modal-triagem .btn-danger {
+    background-color: #dc3545;
+}
+
+#modal-triagem .btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+#modal-triagem .btn-success {
+    background-color: #28a745;
+}
+
+#modal-triagem .btn-secondary {
+    background-color: #6c757d;
+}
+
+/* Animação para o resultado automático */
+@keyframes highlight-result {
+    0% { background-color: rgba(13, 110, 253, 0.2); }
+    50% { background-color: rgba(13, 110, 253, 0.5); }
+    100% { background-color: rgba(13, 110, 253, 0.2); }
+}
+
+#classificacao-automatica {
+    animation: highlight-result 2s ease-in-out;
+} 

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resgate em Ação: Simulador de Catástrofes - Vitória-ES</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="bg-dark text-white p-3 mb-3">
+            <h1 class="text-center">Resgate em Ação: Simulador de Catástrofes</h1>
+            <h5 class="text-center">Vitória-ES</h5>
+        </header>
+        
+        <div class="row">
+            <!-- Painel de Controle -->
+            <div class="col-md-3">
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        Painel de Controle
+                    </div>
+                    <div class="card-body">
+                        <div id="painel-configuracao" class="mb-3">
+                            <h5>Configurar Catástrofe</h5>
+                            <p class="alert alert-info">Clique no mapa para definir o local da catástrofe, ou será escolhido um local aleatório.</p>
+                            <form id="form-catastrofe">
+                                <div class="mb-2">
+                                    <label for="num-vitimas" class="form-label">Número de Vítimas:</label>
+                                    <input type="number" class="form-control" id="num-vitimas" min="1" max="50" value="10">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Tipo de Catástrofe:</label>
+                                    <select class="form-select" id="tipo-catastrofe">
+                                        <option value="acidente_viario">Acidente Viário</option>
+                                        <option value="desabamento">Desabamento</option>
+                                        <option value="incendio">Incêndio</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Iniciar Simulação</button>
+                            </form>
+                        </div>
+                        
+                        <div id="painel-simulacao" class="d-none">
+                            <h5>Status da Simulação</h5>
+                            <div class="mb-2">
+                                <strong>Tempo decorrido:</strong> <span id="tempo-decorrido">00:00</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Vítimas resgatadas:</strong> <span id="vitimas-resgatadas">0</span>/<span id="total-vitimas">0</span>
+                            </div>
+                            <button id="btn-pausar" class="btn btn-warning">Pausar</button>
+                            <button id="btn-reiniciar" class="btn btn-danger">Reiniciar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Painel de Veículos -->
+                <div class="card mb-3">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Painel de Status dos Veículos</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <div id="lista-veiculos">
+                            <div class="card">
+                                <div class="card-body">
+                                    Carregando veículos...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Log de Eventos -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        Log de Eventos
+                    </div>
+                    <div class="card-body p-2">
+                        <div id="log-eventos" class="small">
+                            <!-- Será preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mapa Interativo -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        Mapa de Operações
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="mapa" style="height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Painel de Vítimas -->
+            <div class="col-md-3">
+                <div class="card mb-3">
+                    <div class="card-header bg-danger text-white">
+                        Painel de Vítimas
+                    </div>
+                    <div class="card-body">
+                        <!-- Contagem por gravidade -->
+                        <div class="row mb-3">
+                            <div class="col-3 text-center">
+                                <div class="bg-danger text-white p-2 rounded">
+                                    <span id="count-vermelha">0</span>
+                                </div>
+                                <small>Vermelhas</small>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="bg-warning text-white p-2 rounded">
+                                    <span id="count-amarela">0</span>
+                                </div>
+                                <small>Amarelas</small>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="bg-success text-white p-2 rounded">
+                                    <span id="count-verde">0</span>
+                                </div>
+                                <small>Verdes</small>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="bg-secondary text-white p-2 rounded">
+                                    <span id="count-cinza">0</span>
+                                </div>
+                                <small>Cinzas</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de vítimas -->
+                        <h5>Lista de Vítimas</h5>
+                        <div id="lista-vitimas" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Será preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hospitais -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Hospitais
+                    </div>
+                    <div class="card-body">
+                        <ul id="lista-hospitais" class="list-group">
+                            <!-- Será preenchido via JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Despacho -->
+        <div class="modal fade" id="modal-despacho" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Despachar Ambulância</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Você deseja despachar esta ambulância para o local do incidente?</p>
+                        <h6 id="despacho-veiculo-info" class="text-center mb-3">Ambulância #1</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" id="btn-confirmar-despacho" class="btn btn-primary">Despachar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Triagem START -->
+        <div class="modal fade" id="modal-triagem" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Triagem START - Avaliação da Vítima</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="instrucoes-triagem" class="alert alert-info mb-3">
+                            <h6>Método START de Triagem</h6>
+                            <p>Você deve avaliar cada vítima seguindo o protocolo START:</p>
+                            <ol>
+                                <li><strong>Vítima deambula?</strong> Se sim → VERDE</li>
+                                <li><strong>Respiração:</strong> Ausente/com manobras → CINZA | >30/min → VERMELHO</li>
+                                <li><strong>Perfusão:</strong> Pulso radial ausente/Capilar >2s → VERMELHO</li>
+                                <li><strong>Estado Mental:</strong> Não obedece comandos → VERMELHO</li>
+                                <li>Caso contrário → AMARELO</li>
+                            </ol>
+                        </div>
+                        
+                        <div id="vitima-info" class="text-center mb-3">
+                            <h4>Vítima #<span id="vitima-numero">1</span></h4>
+                            <p>Com base nos sinais clínicos abaixo, selecione a classificação adequada:</p>
+                        </div>
+                        
+                        <form id="form-triagem">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">Sinais Clínicos</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Deambulação:</label>
+                                                <div class="form-control" id="vitima-deambulacao">Sim, consegue andar</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Respiração:</label>
+                                                <div class="form-control" id="vitima-respiracao">Normal</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Perfusão:</label>
+                                                <div class="form-control" id="vitima-perfusao">Pulso radial presente, TEC normal</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Estado Mental:</label>
+                                                <div class="form-control" id="vitima-mental">Obedece comandos</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">Classificação da Vítima</div>
+                                        <div class="card-body text-center">
+                                            <h5>Selecione a classificação:</h5>
+                                            <div class="btn-group-vertical w-100 mt-3" role="group">
+                                                <button type="button" class="btn btn-danger mb-2 btn-classificar" data-classificacao="vermelha">
+                                                    VERMELHO - Emergência
+                                                </button>
+                                                <button type="button" class="btn btn-warning mb-2 btn-classificar" data-classificacao="amarela">
+                                                    AMARELO - Urgência
+                                                </button>
+                                                <button type="button" class="btn btn-success mb-2 btn-classificar" data-classificacao="verde">
+                                                    VERDE - Pouca Urgência
+                                                </button>
+                                                <button type="button" class="btn btn-secondary mb-2 btn-classificar" data-classificacao="cinza">
+                                                    CINZA - Sem Sobrevida
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btn-confirmar-triagem" class="btn btn-primary">Confirmar Classificação</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Ação da Ambulância -->
+        <div class="modal fade" id="modal-acao-ambulancia" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ambulância #<span id="ambulancia-id">1</span> no Local</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>A ambulância chegou ao local do incidente. O que deseja fazer?</p>
+                        <div class="d-grid gap-2">
+                            <button type="button" id="btn-permanecer-local" class="btn btn-warning">Permanecer no Local</button>
+                            <button type="button" id="btn-remover-paciente" class="btn btn-success">Remover Paciente</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Remoção de Paciente -->
+        <div class="modal fade" id="modal-remocao-paciente" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Remoção de Paciente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-remocao">
+                            <div class="mb-3">
+                                <label class="form-label">Selecione o Paciente:</label>
+                                <select id="select-remocao-vitima" class="form-select" required>
+                                    <!-- Será preenchido via JavaScript -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Selecione o Hospital:</label>
+                                <select id="select-remocao-hospital" class="form-select" required>
+                                    <!-- Será preenchido via JavaScript -->
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" id="btn-confirmar-remocao" class="btn btn-primary">Confirmar Remoção</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Adicionar Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    
+    <!-- Scripts personalizados -->
+    <script src="{{ url_for('static', filename='js/simulacao.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mapa.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/interface.js') }}"></script>
+</body>
+</html> 
