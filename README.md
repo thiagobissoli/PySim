@@ -1,7 +1,5 @@
 # PySim
 Resgate em Ação: Simulador de Catástrofes
-=======
-# Resgate em Ação: Simulador de Catástrofes
 
 Um simulador educativo e realista de resposta a múltiplas vítimas em situações de emergência.
 
