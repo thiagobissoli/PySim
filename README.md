@@ -30,7 +30,7 @@ A simulação segue os protocolos reais de triagem e atendimento, com foco na pr
 
 1. Clone o repositório:
 ```
-git clone https://github.com/seu-usuario/resgate-em-acao.git
+git clone https://github.com/thiagobissoli/PySim.git
 cd resgate-em-acao
 ```
 
@@ -70,7 +70,7 @@ Para facilitar a instalação, criamos um script automatizado que configura e in
 
 1. Clone o repositório:
 ```
-git clone https://github.com/seu-usuario/resgate-em-acao.git
+git clone https://github.com/thiagobissoli/PySim.git
 cd resgate-em-acao
 ```
 
@@ -97,7 +97,7 @@ Se preferir fazer a instalação manualmente, siga estas etapas:
 
 1. Clone o repositório:
 ```
-git clone https://github.com/seu-usuario/resgate-em-acao.git
+git clone https://github.com/thiagobissoli/PySim.git
 cd resgate-em-acao
 ```
 
@@ -213,4 +213,3 @@ Contribuições são bem-vindas! Se você tem ideias para melhorar o simulador, 
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes. 
->>>>>>> 389152f (Primeiro commit)
